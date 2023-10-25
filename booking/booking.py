@@ -13,7 +13,7 @@ import json
 class BookingServicer(booking_pb2_grpc.BookingServicer):
 
     def __init__(self):
-        self.data_file_path = '{}/booking/data/bookings.json'
+        self.data_file_path = './booking/data/bookings.json'
         with open('{}/booking/data/bookings.json'.format("."), "r") as jsf:
             self.db = json.load(jsf)["bookings"]
 
@@ -34,6 +34,7 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
             yield booking_pb2.BookingResponse(booking_info)
 
     def AddBooking(self, request, context):
+        print("add booking")
         userid = request.userid
         date = request.date
         movieid = request.movieid
@@ -45,16 +46,15 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
                             if movieid in day["movies"]: #if movie is already booked on this day
                                 print("Booking already exists!")
                             day["movies"].append(movieid)  # then add movie to existing list
-                            self.save_data()
-                            booking_info = booking_pb2.Booking_info(userid=user_bookings['userid'], dates = booking_pb2.Dates(date = date, movie = movieid))
-                            return booking_pb2.BookingResponse(booking_info)
+                            dates = booking_pb2.Dates(date = date, movie = [movieid])
+                            booking_info = booking_pb2.Booking_info(userid=user_bookings['userid'], dates=[dates])
+                            return booking_pb2.BookingResponse(booking=booking_info)
 
                     user_bookings["dates"].append({
                         "date": date,
                         "movies": [movieid]})
-                    self.save_data()
-                    booking_info = booking_pb2.Booking_info(userid=user_bookings['userid'], dates = booking_pb2.Dates(date = date, movie = movieid))
-                    return booking_pb2.BookingResponse(booking_info)
+                    booking_info = booking_pb2.Booking_info(userid=user_bookings['userid'], dates=[booking_pb2.Dates(date = date, movie = [movieid])])
+                    return booking_pb2.BookingResponse(booking=booking_info)
             user_bookings.append({
                 "userid": userid,
                 "dates":[
@@ -68,9 +68,9 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
             print("error: " "movie or date not found")
 
     def CheckMovieDate(self, movie, date):
-        with grpc.insecure_channel('localhost:3002') as channel:
+        with grpc.insecure_channel('localhost:3202') as channel:
             stub = showtime_pb2_grpc.ShowtimeStub(channel)
-            date = showtime_pb2.Dates(date=date)
+            date = showtime_pb2.Date(date=date)
             schedule = stub.GetMoviebyDate(date)
         if(movie in schedule.movies): return True
         else: return False
@@ -87,7 +87,7 @@ def serve():
     booking_pb2_grpc.add_BookingServicer_to_server(BookingServicer(), server)
     server.add_insecure_port('[::]:3201')
     server.start()
-    #server.wait_for_termination()
+    server.wait_for_termination()
 
 if __name__ == '__main__':
     serve()

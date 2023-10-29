@@ -49,23 +49,33 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
             # If movie is avaible, check if the user has made the booking before
             for user_bookings in self.db:
                 if str(user_bookings["userid"]) == str(userid):  # If userid exists
+                    # Get the index of the user data in the reservation dataset to update the database    
+                    index = self.db.index(user_bookings)  
                     for day in user_bookings["dates"]:
                         if str(day["date"]) == str(date):  # if user already has a booking on date
                             if movieid in day["movies"]: #if movie is already booked on this day
                                 print("Booking already exists!")
-                            day["movies"].append(movieid)  # then add movie to existing list
-                            dates = booking_pb2.Dates(date = date, movie = [movieid])
-                            booking_info = booking_pb2.Booking_info(userid=user_bookings['userid'], dates=[dates])
-                            return booking_pb2.BookingResponse(booking=booking_info)
-
+                                return booking_pb2.BookingResponse(booking = booking_pb2.Booking_info(userid=user_bookings['userid'], dates=[]))
+                            else:
+                                # Get the index of the user movie data in the reservation dataset to update the database
+                                index_movie = user_bookings["dates"].index(day)
+                                self.db[index]["dates"][index_movie].append(movieid)  # Then add movie to existing list 
+                                dates = booking_pb2.Dates(date = date, movie = [movieid])
+                                booking_info = booking_pb2.Booking_info(userid=user_bookings['userid'], dates=[dates])
+                                # Save the changes of booking in the dataset
+                                self.save_data()
+                                return booking_pb2.BookingResponse(booking=booking_info)
+                        
                     # If user has existed in the booking dataset, but dont have the booking information on this date and movie
-                    user_bookings["dates"].append({
+                    self.db[index]["dates"].append({
                         "date": date,
                         "movies": [movieid]})
                     booking_info = booking_pb2.Booking_info(userid=user_bookings['userid'], dates=[booking_pb2.Dates(date = date, movie = [movieid])])
+                    self.save_data() ## Save the changes of booking in the dataset
                     return booking_pb2.BookingResponse(booking=booking_info)
+                
             # If movie is avaible, but the first time for user to add a booking
-            user_bookings.append({
+            self.db.append({
                 "userid": userid,
                 "dates":[
                     {
@@ -74,9 +84,15 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
                     }
                 ]
             })
+            # Save the changes of booking in the dataset
+            self.save_data()
+            dates = booking_pb2.Dates(date = date, movie = [movieid])
+            booking_info = booking_pb2.Booking_info(userid=userid, dates = [dates])
+            return booking_pb2.BookingResponse(booking = booking_info)
         else:
             # Movie is not avaible on the date
             print("error: " "movie or date not found")
+            return booking_pb2.BookingResponse(booking = booking_pb2.Booking_info(userid=user_bookings['userid'], dates=[]))
 
     # Function defined to check if the movie is avaible on the given date
     def CheckMovieDate(self, movie, date):
@@ -92,7 +108,7 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
     def save_data(self):
         try:
             with open(self.data_file_path, "w") as jsf:
-                json.dump({"schedule": self.db}, jsf)
+                json.dump({"bookings": self.db}, jsf)
         except Exception as e:
             print(f"error when saving: {e}")
 

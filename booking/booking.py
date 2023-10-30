@@ -104,11 +104,13 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
         # If the movie is in the list, then movie is avaible on the date, return true
         if(movie in schedule.movies): return True
         else: return False
-
+    # The function to save the changes of booking information in the booking database
     def save_data(self):
         try:
+            # Try to open the database file
             with open(self.data_file_path, "w") as jsf:
-                json.dump({"bookings": self.db}, jsf)
+                # Update the old database file with the new database information which is stored in self.db with the index of dict "booking"
+                json.dump({"bookings": self.db}, jsf)   
         except Exception as e:
             print(f"error when saving: {e}")
 

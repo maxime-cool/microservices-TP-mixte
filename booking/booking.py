@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import grpc
 import sys
 from concurrent import futures

@@ -6,11 +6,11 @@ from flask import Flask, request, jsonify
 import resolvers as r
 
 PORT = 3200
-HOST = 'localhost'
+HOST = 'movie'
 app = Flask(__name__)
 
 # Create elements for Ariadne
-type_defs = load_schema_from_path('./movie/movie.graphql')
+type_defs = load_schema_from_path('./movie.graphql')
 query = QueryType()
 
 # Get the movie by its id, by passing in the appropriate options, you can get info of a Movie

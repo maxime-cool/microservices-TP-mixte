@@ -16,10 +16,10 @@ app = Flask(__name__)
 
 # Defining the server entry point
 PORT = 3203
-HOST = 'localhost'
+HOST = 'user'
 
 # open the database user
-with open('{}/user/data/users.json'.format("."), "r") as jsf:
+with open('{}/data/users.json'.format("."), "r") as jsf:
     users = json.load(jsf)["users"]
 
 
@@ -46,7 +46,7 @@ def check_user_booking():
     user = next((user for user in users if str(user['id']) == str(user_id)), None)
     if user:
         # Use Booking GRPC to check if the booking is ok for this user
-        with grpc.insecure_channel('localhost:3201') as channel:
+        with grpc.insecure_channel('booking:3201') as channel:
             stub = booking_pb2_grpc.BookingStub(channel)
             bookingRequest = booking_pb2.AddBookingRequest(userid=user_id, date=date, movieid=movieid)
             response = add_booking_byuser(stub, bookingRequest)
@@ -70,7 +70,7 @@ def get_user_booking_movies():
     if user: # if user exists, firstly go to the booking serveur to get the information of booking
         res = []
         # Get all the booking infotmation from channel booking in grpc
-        with grpc.insecure_channel('localhost:3201') as channel:
+        with grpc.insecure_channel('booking:3201') as channel:
             stub = booking_pb2_grpc.BookingStub(channel)
             userid = booking_pb2.UserID(userid = user_id)
             response = get_booking_for_user(stub, userid)
@@ -102,7 +102,7 @@ def get_user_booking_movies():
                     "movieId": id
                 }
                 # Get the movie information in graphql
-                movie = requests.post("http://localhost:3200/graphql",json={'query': query, 'variables': variables})
+                movie = requests.post("http://movie:3200/graphql",json={'query': query, 'variables': variables})
                 if movie.status_code != 200:
                     return make_response(jsonify({"error": "movies in booking not found"}), 400)
                 info["movies"].append(movie.json())

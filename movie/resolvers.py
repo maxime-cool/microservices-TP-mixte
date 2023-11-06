@@ -2,7 +2,7 @@ import json
 
 # Function of getting the movie by giving movie id
 def movie_with_id(_,info,_id):
-    with open('{}/movie/data/movies.json'.format("."), "r") as file:
+    with open('{}/data/movies.json'.format("."), "r") as file:
         movies = json.load(file)
         for movie in movies['movies']:
             if movie['id'] == _id:
@@ -10,7 +10,7 @@ def movie_with_id(_,info,_id):
 
 # Function of getting the movie by giving movie title        
 def movie_with_title(_,info,_title):
-    with open('{}/movie/data/movies.json'.format("."), "r") as file:
+    with open('{}/data/movies.json'.format("."), "r") as file:
         movies = json.load(file)
         for movie in movies['movies']:
             if movie['title'] == _title:
@@ -18,7 +18,7 @@ def movie_with_title(_,info,_title):
 
 # Function of getting the actors by giving the movie id            
 def actor_with_id(_,info,_id): 
-    with open('{}/movie/data/actors.json'.format("."), "r") as file:
+    with open('{}/data/actors.json'.format("."), "r") as file:
         actors = json.load(file)
         for actor in actors['actors']:
             if _id in actor['films']:
@@ -28,7 +28,7 @@ def actor_with_id(_,info,_id):
 def update_movie_rate(_,info,_id,_rate):
     newmovies = {}
     newmovie = {}
-    with open('{}/movie/data/movies.json'.format("."), "r") as rfile:
+    with open('{}/data/movies.json'.format("."), "r") as rfile:
         movies = json.load(rfile)
         for movie in movies['movies']:
             if movie['id'] == _id:
@@ -37,7 +37,7 @@ def update_movie_rate(_,info,_id,_rate):
                 newmovie = movie
                 newmovies = movies
     # Store the changement in the database
-    with open('{}/movie/data/movies.json'.format("."), "w") as wfile:
+    with open('{}/data/movies.json'.format("."), "w") as wfile:
         json.dump(newmovies, wfile)
     return newmovie
 
@@ -45,7 +45,7 @@ def update_movie_rate(_,info,_id,_rate):
 def update_movie_title(_,info,_id,_title):
     newmovies = {}
     newmovie = {}
-    with open('{}/movie/data/movies.json'.format("."), "r") as rfile:
+    with open('{}/data/movies.json'.format("."), "r") as rfile:
         movies = json.load(rfile)
         for movie in movies['movies']:
             if movie['id'] == _id:
@@ -60,7 +60,7 @@ def update_movie_title(_,info,_id,_title):
 
 # Function of connecting to the parent movie object to provide a list of actors for the returned movie type
 def resolve_actors_in_movie(movie, info):
-    with open('{}/movie/data/actors.json'.format("."), "r") as file:
+    with open('{}/data/actors.json'.format("."), "r") as file:
         data = json.load(file)
         actors = [actor for actor in data['actors'] if movie['id'] in actor['films']]
     return actors
@@ -76,14 +76,14 @@ def add_movie(_,info, _input):
                 return movie
         # If movie dosen't exist, add the movie
         movies['movies'].append(_input)
-    with open('{}/movie/data/movies.json'.format("."), "w") as wfile:
+    with open('{}/data/movies.json'.format("."), "w") as wfile:
         json.dump(movies, wfile)
     return _input
 
 # Function of deleting the movie by giving id   
 def del_movie(_,info, _id):
     del_movie = {}
-    with open('{}/movie/data/movies.json'.format("."), "r") as rfile:
+    with open('{}/data/movies.json'.format("."), "r") as rfile:
         movies = json.load(rfile)
         for movie in movies['movies']:
             # If movie exists, delete the movie
@@ -93,7 +93,7 @@ def del_movie(_,info, _id):
     # Store the changement in the database
     if(del_movie != {}):
         movies['movies'].remove(del_movie)
-        with open('{}/movie/data/movies.json'.format("."), "w") as wfile:
+        with open('{}/data/movies.json'.format("."), "w") as wfile:
             json.dump(movies, wfile)
         return del_movie
     else:

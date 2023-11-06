@@ -14,8 +14,8 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
 
     def __init__(self):
         # Define the path to the database and open the database
-        self.data_file_path = './booking/data/bookings.json'
-        with open('{}/booking/data/bookings.json'.format("."), "r") as jsf:
+        self.data_file_path = './data/bookings.json'
+        with open('{}/data/bookings.json'.format("."), "r") as jsf:
             self.db = json.load(jsf)["bookings"]
 
     # Function defined for getting the booking information by user ID
@@ -101,7 +101,7 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
             output: Boolean, if the movie is avaible on the date 
         """
         # Make the connection to the server of showtime to get list of movies on the date
-        with grpc.insecure_channel('localhost:3202') as channel:
+        with grpc.insecure_channel('showtime:3202') as channel:
             stub = showtime_pb2_grpc.ShowtimeStub(channel)
             date = showtime_pb2.Date(date=date)
             schedule = stub.GetMoviebyDate(date)

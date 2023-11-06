@@ -16,12 +16,12 @@ def movie_with_title(_,info,_title):
             if movie['title'] == _title:
                 return movie
 
-# Function of getting the actors by giving the movie id            
+# Function of getting the actors by giving the actor id            
 def actor_with_id(_,info,_id): 
     with open('{}/data/actors.json'.format("."), "r") as file:
         actors = json.load(file)
         for actor in actors['actors']:
-            if _id in actor['films']:
+            if _id == actor['id']:
                 return actor
 
 # Function of updating the movie rate by giving movie id and new rate           
@@ -54,7 +54,7 @@ def update_movie_title(_,info,_id,_title):
                 newmovie = movie
                 newmovies = movies
     # Store the changement in the database
-    with open('{}/movie/data/movies.json'.format("."), "w") as wfile:
+    with open('{}/data/movies.json'.format("."), "w") as wfile:
         json.dump(newmovies, wfile)
     return newmovie
 
@@ -67,7 +67,7 @@ def resolve_actors_in_movie(movie, info):
     
 # Function of adding a new movie
 def add_movie(_,info, _input):
-    with open('{}/movie/data/movies.json'.format("."), "r") as rfile:
+    with open('{}/data/movies.json'.format("."), "r") as rfile:
         movies = json.load(rfile)
         for movie in movies['movies']:
             # If movie already exists, print error

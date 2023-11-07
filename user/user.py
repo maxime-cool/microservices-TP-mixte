@@ -27,6 +27,12 @@ with open('{}/data/users.json'.format("."), "r") as jsf:
 def home():
     return "<h1 style='color:blue'>Welcome to the User service!</h1>"
 
+@app.route("/uerjson", methods=["GET"])
+def get_json():
+    res = make_response(jsonify(users), 200)
+    return res
+
+
 def get_booking_for_user(stub, userid):
     allbookings = stub.GetBookings(userid)
     return allbookings
